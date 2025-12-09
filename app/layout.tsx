@@ -30,10 +30,8 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <Providers>
-          <div className="container max-w-7xl mx-auto">
-            <TopBar />
-            {children}
-          </div>
+          <TopBar />
+          <div className="container max-w-7xl mx-auto">{children}</div>
         </Providers>
       </body>
     </html>

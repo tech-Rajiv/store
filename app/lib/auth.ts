@@ -1,7 +1,4 @@
-import { Account } from "next-auth";
-import { Session } from "next-auth";
-
-import { JWT } from "next-auth/jwt";
+import type { AuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 
@@ -11,7 +8,7 @@ declare module "next-auth" {
   }
 }
 
-export const AUTH_OPTIONS = {
+export const AUTH_OPTIONS: AuthOptions = {
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
@@ -26,7 +23,6 @@ export const AUTH_OPTIONS = {
       },
       async authorize(credentials, req) {
         if (!credentials) return null;
-        // console.log("credentials: ", credentials);
         const { email } = credentials;
         return {
           id: "01",
@@ -41,17 +37,13 @@ export const AUTH_OPTIONS = {
     signIn: "/login",
   },
   callbacks: {
-    async jwt({ token, user, account }: { token: JWT; account: Account }) {
+    async jwt({ token, user, account }) {
       if (user && !account) {
-        token.userId = user.id; // manual user ID
-        token.loginType = "credentials"; // optional but useful
+        token.userId = user.id;
+        token.loginType = "credentials";
       }
-
-      // -----------------------------------
-      // Case 2: FIRST LOGIN (Google)
-      // -----------------------------------
       if (account && account.type === "oauth") {
-        token.userId = account.providerAccountId; // google user id
+        token.userId = account.providerAccountId;
         token.access_token = account.access_token;
         token.refresh_token = account.refresh_token;
         token.expires_at = account.expires_at;
@@ -60,10 +52,9 @@ export const AUTH_OPTIONS = {
 
       return token;
     },
-    async session({ session, token }: { session: Session; token: JWT }) {
-      // console.log("token: ", token);
+    async session({ session, token }) {
       if (session && session.user) {
-        session.userId = token?.sub;
+        session.userId = token.userId as string;
       }
       return session;
     },
