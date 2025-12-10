@@ -51,7 +51,7 @@ export default function LoginPage() {
   return (
     <form onSubmit={handleLogin} className=" flex flex-col gap-4">
       <div>
-        <Label>Email</Label>
+        <Label>Email *</Label>
         <Input
           name="email"
           onChange={() => setErrors(null)}
@@ -60,7 +60,7 @@ export default function LoginPage() {
         />
       </div>
       <div>
-        <Label>Password</Label>
+        <Label>Password *</Label>
         <Input
           type="password"
           onChange={() => setErrors(null)}

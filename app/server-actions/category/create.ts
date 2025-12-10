@@ -2,11 +2,12 @@
 import Category from "@/app/lib/db/models/category";
 import connectToDatabase from "@/app/lib/mogodb";
 
-export const createCategory = async (
-  name: string,
-  thumbnail?: string,
-  description?: string
-) => {
+export const createCategory = async (formData: {
+  name: string;
+  thumbnail: string;
+  description: string;
+}) => {
+  const { name, thumbnail, description } = formData;
   try {
     await connectToDatabase();
     const exists = await Category.findOne({ name });
@@ -20,7 +21,6 @@ export const createCategory = async (
     });
     return {
       success: true,
-      data: newCategory,
       message: "Category created successfully",
     };
   } catch (error: any) {

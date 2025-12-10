@@ -5,12 +5,6 @@ import bcrypt from "bcryptjs";
 import connectToDatabase from "./mogodb";
 import User from "./db/models/user";
 
-declare module "next-auth" {
-  interface Session {
-    userId?: string;
-  }
-}
-
 export const AUTH_OPTIONS: AuthOptions = {
   providers: [
     GoogleProvider({
@@ -40,11 +34,13 @@ export const AUTH_OPTIONS: AuthOptions = {
 
         const passwordMatch = await bcrypt.compare(password, exists.password);
         console.log("passwordMatch: ", passwordMatch);
+        const userObj = exists.toObject();
 
-        const { password: _, ...safeUser } = exists;
-        if (!passwordMatch) throw new Error("Invalid");
-
-        return safeUser;
+        return {
+          id: userObj._id.toString(),
+          email: userObj.email,
+          name: userObj.name,
+        };
       },
     }),
   ],
@@ -54,20 +50,7 @@ export const AUTH_OPTIONS: AuthOptions = {
     error: "/login",
   },
   callbacks: {
-    async signIn({ user, account, profile, email, credentials }) {
-      console.log(
-        "user, account, profile, email, credentials: in signinn",
-        user,
-        account,
-        profile,
-        email,
-        credentials
-      );
-      return true;
-    },
     async jwt({ token, user, account }) {
-      console.log("token, user, account: in cred call", token, user, account);
-
       if (user && !account) {
         token.userId = user.id;
         token.loginType = "credentials";
@@ -83,11 +66,10 @@ export const AUTH_OPTIONS: AuthOptions = {
       return token;
     },
     async session({ session, token }) {
-      console.log(" token in sess call: ", token);
-      if (session && session.user) {
-        session.userId = token.userId as string;
+      if (session.user) {
+        session.user.id = token.sub;
       }
-      console.log("sessionnnn callbk", session);
+      console.log("session: ", session);
       return session;
     },
   },

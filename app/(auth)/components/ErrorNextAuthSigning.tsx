@@ -1,5 +1,4 @@
 import { Info } from "lucide-react";
-import React from "react";
 import { formattedErrors } from "../constants";
 
 function ErrorNextAuthSigning({

@@ -1,5 +1,4 @@
-import React from "react";
-import SigninForm from "../components/SigninForm";
+import SignupForm from "../components/SignupForm";
 
 function page() {
   return (
@@ -10,7 +9,7 @@ function page() {
           Please signup with your name, email and password
         </p>
 
-        <SigninForm />
+        <SignupForm />
       </div>
     </div>
   );
