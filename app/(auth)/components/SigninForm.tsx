@@ -7,11 +7,15 @@ import ErrorValidation from "./ErrorValidation";
 import { Button } from "@/components/ui/button";
 import BottomRedirect from "./BottomRedirect";
 import { registerUser } from "@/app/server-actions/user/register";
+import { useSearchParams } from "next/navigation";
 
 function SigninForm() {
   const [errors, setErrors] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const params = useSearchParams();
+  const error = params.get("error");
 
+  console.log("params: ", params);
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
@@ -73,6 +77,7 @@ function SigninForm() {
       </div>
 
       <ErrorValidation errors={errors} />
+
       <Button type="submit" disabled={isLoading}>
         {isLoading ? "Signing up..." : "Sign Up"}
       </Button>

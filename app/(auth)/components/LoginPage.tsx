@@ -8,11 +8,16 @@ import ErrorValidation from "./ErrorValidation";
 import { loginZodData } from "../login/ZodValidations";
 import { useState } from "react";
 import BottomRedirect from "./BottomRedirect";
+import { useSearchParams } from "next/navigation";
+import ErrorNextAuthSigning from "./ErrorNextAuthSigning";
 
 export default function LoginPage() {
   const [errors, setErrors] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const params = useSearchParams();
+  const error = params.get("error");
 
+  console.log("params: ", params);
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
@@ -63,12 +68,11 @@ export default function LoginPage() {
           className="mt-2"
         />
       </div>
-
       <ErrorValidation errors={errors} />
+      <ErrorNextAuthSigning nextAuthError={error} />
       <Button type="submit" disabled={isLoading}>
         {isLoading ? "Signing In..." : "Sign In"}
       </Button>
-
       <SignInGoogleBtn />
 
       <BottomRedirect content="not a user? Signup" url={"/signup"} />

@@ -1,6 +1,9 @@
 import type { AuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
+import bcrypt from "bcryptjs";
+import connectToDatabase from "./mogodb";
+import User from "./db/models/user";
 
 declare module "next-auth" {
   interface Session {
@@ -17,27 +20,54 @@ export const AUTH_OPTIONS: AuthOptions = {
 
     CredentialsProvider({
       name: "Credentials",
+
       credentials: {
         email: {},
         password: {},
       },
-      async authorize(credentials, req) {
-        if (!credentials) return null;
-        const { email } = credentials;
-        return {
-          id: "01",
-          name: "rajiv",
-          email,
-        };
+
+      async authorize(credentials) {
+        await connectToDatabase();
+
+        if (!credentials) throw new Error("Missing Credentials");
+
+        const { email, password } = credentials;
+        console.log("email, password : ", email, password);
+
+        const exists = await User.findOne({ email });
+        if (!exists) throw new Error("UserNotFound");
+        console.log("exists: ", exists);
+
+        const passwordMatch = await bcrypt.compare(password, exists.password);
+        console.log("passwordMatch: ", passwordMatch);
+
+        const { password: _, ...safeUser } = exists;
+        if (!passwordMatch) throw new Error("Invalid");
+
+        return safeUser;
       },
     }),
   ],
 
   pages: {
     signIn: "/login",
+    error: "/login",
   },
   callbacks: {
+    async signIn({ user, account, profile, email, credentials }) {
+      console.log(
+        "user, account, profile, email, credentials: in signinn",
+        user,
+        account,
+        profile,
+        email,
+        credentials
+      );
+      return true;
+    },
     async jwt({ token, user, account }) {
+      console.log("token, user, account: in cred call", token, user, account);
+
       if (user && !account) {
         token.userId = user.id;
         token.loginType = "credentials";
@@ -53,9 +83,11 @@ export const AUTH_OPTIONS: AuthOptions = {
       return token;
     },
     async session({ session, token }) {
+      console.log(" token in sess call: ", token);
       if (session && session.user) {
         session.userId = token.userId as string;
       }
+      console.log("sessionnnn callbk", session);
       return session;
     },
   },
