@@ -1,33 +1,4 @@
 
-generator client {
-  provider = "prisma-client-js"
-}
-
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-  shadowDatabaseUrl = env("DATABASE_URL")
-}
-
-model User {
-  id       Int      @id @default(autoincrement())
-  email    String   @unique
-  name     String?
-  password String
-  isAdmin  Boolean  @default(false)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  reviews  Review[]
-}
-
-model Category {
-  id       Int       @id @default(autoincrement())
-  name     String
-  products Product[]
-}
-
-
 model Product {
   id             Int       @id @default(autoincrement())
   name           String
